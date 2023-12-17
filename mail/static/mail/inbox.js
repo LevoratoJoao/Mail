@@ -21,19 +21,21 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('#compose-subject').value = '';
 	document.querySelector('#compose-body').value = '';
 
-	fetch('/emails', {
-		method: 'POST',
-		body: JSON.stringify({
-			recipients: document.querySelector('#compose-recipients').value,
-			subject: document.querySelector('#compose-subject').value,
-			body: document.querySelector('#compose-body').value
-		})
-	  })
-	  .then(response => response.json())
-	  .then(result => {
-		  // Print result
-		  console.log(result);
-	  });
+	document.querySelector('#compose-form').onsubmit = () => {
+		fetch('/emails', {
+			method: 'POST',
+			body: JSON.stringify({
+				recipients: document.querySelector('#compose-recipients').value,
+				subject: document.querySelector('#compose-subject').value,
+				body: document.querySelector('#compose-body').value
+			})
+		  })
+		  .then(response => response.json())
+		  .then(result => {
+			  // Print result
+			  console.log(result);
+		  });
+	};
   }
 
   function load_mailbox(mailbox) {
@@ -50,31 +52,139 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Print emails
 		console.log(emails);
 
-		const element = document.createElement('div');
-		element.id = '#emails-objects';
+		const email_div = document.createElement('div');
+		email_div.id = '#emails-object';
 
-		element.addEventListener('click', function() {
-    		console.log('This element has been clicked!')
-		});
-
-		document.querySelector('#emails-view').append(element);
-
-		const ul = document.createElement('ul');
-		const li = document.createElement('li');
+		document.querySelector('#emails-view').append(email_div);
 
 		emails.forEach(element => {
-			console.log("Element: "+ element.subject);
-			li.textContent = element.subject;
-			console.log(`Li: ${li.textContent}`);
-			ul.appendChild(li);
-			console.log(`Ul: ${ul}`);
+			const p = document.createElement('p');
+			if (mailbox == 'inbox') {
+				p.innerHTML = `<button class="btn btn-sm btn-outline-primary btn-lg btn-block" id="inbox">Subject: ${element['subject']}<br>Sender: ${element['sender']}</button>`
+				p.addEventListener('click', () => load_mail(element['id']));
+				email_div.appendChild(p);
+			} else if (mailbox == 'archive' && element['archived'] == true) {
+				p.innerHTML = `<button class="btn btn-sm btn-outline-primary btn-lg btn-block" id="inbox">Subject: ${element['subject']}<br>Sender: ${element['sender']}</button>`
+				p.addEventListener('click', () => load_mail(element['id']));
+				email_div.appendChild(p);
+			}
 		});
+	});
+  }
 
-		const test =document.querySelector('#emails-views');
-		test.appendChild(ul);
+  function load_mail(id) {
+	// Show the mailbox and hide other views
+	document.querySelector('#emails-view').style.display = 'block';
+	document.querySelector('#compose-view').style.display = 'none';
+
+	fetch(`/emails/${id}`)
+	.then(response => response.json())
+	.then(email => {
+		// Print email
+		console.log(email);
+
+		fetch(`/emails/${id}`, {
+			method: 'PUT',
+			body: JSON.stringify({
+				read: true
+			})
+		  })
+		  .then(result => {
+			  // Print result
+			  console.log(result);
+		  });
+
+		// ... do something else with email ...
+		document.querySelector('#emails-view').innerHTML = `<h3>${email.subject}</h3>`;
+
+		const email_div = document.createElement('div');
+		email_div.id = '#emails-object';
+
+		document.querySelector('#emails-view').append(email_div);
+
+		const p = document.createElement('p');
+		p.innerHTML = `Sender: ${email['sender']} - ${email['timestamp']}<br>Body: ${email['body']}`;
+		email_div.appendChild(p);
+
+		const archive_form = document.createElement('form');
+		archive_form.setAttribute('id', 'archive-form');
+
+		const archive_button = document.createElement('input');
+		archive_button.setAttribute('id', 'archive-button');
+		archive_button.setAttribute('value', 'archive');
+		archive_button.setAttribute('type', 'submit');
+		archive_button.setAttribute('class', 'btn btn-primary');
+
+		archive_form.appendChild(archive_button);
+
+		email_div.appendChild(archive_form);
+
+		document.querySelector('#archive-form').onsubmit = () => {
+			fetch(`/emails/${id}`,  {
+				method: 'PUT',
+				body: JSON.stringify({
+					archived: true
+				})
+			  }).then(result => {
+				  // Print result
+				  console.log(result);
+			  });
+		};
+
+		const reply_form = document.createElement('form');
+		reply_form.setAttribute('id', 'reply-form');
+
+		const input = document.createElement('input');
+		input.disabled = true;
+		input.setAttribute('id', 'compose-recipients');
+		input.setAttribute('class', 'form-control');
+		input.setAttribute('value', `${email['sender']}`);
+		reply_form.appendChild(input);
+
+		const textarea = document.createElement('textarea');
+		textarea.setAttribute('class', 'form-control');
+		textarea.setAttribute('id', 'compose-body');
+		textarea.setAttribute('placeholder', 'body');
+		reply_form.appendChild(textarea);
+
+		const submit = document.createElement('input');
+		submit.setAttribute('id', 'reply-button');
+		submit.setAttribute('value', 'reply');
+		submit.setAttribute('type', 'submit');
+		submit.setAttribute('class', 'btn btn-primary');
+		reply_form.appendChild(submit);
+
+		email_div.appendChild(reply_form);
+
+		document.querySelector('#reply-form').onsubmit = () => {
+			fetch('/emails', {
+				method: 'POST',
+				body: JSON.stringify({
+					subject: document.querySelector('#compose-recipients').value,
+					body: document.querySelector('#compose-body').value
+				})
+			  })
+			  .then(response => response.json())
+			  .then(result => {
+				  // Print result
+				  console.log(result);
+			  });
+		};
 	});
   }
 
   function send_email() {
-
+	fetch('/emails', {
+		method: 'POST',
+		body: JSON.stringify({
+			recipients: document.querySelector('#compose-recipients').value,
+			subject: document.querySelector('#compose-subject').value,
+			body: document.querySelector('#compose-body').value
+		})
+	  })
+	  .then(response => response.json())
+	  .then(result => {
+		  // Print result
+		  console.log(result);
+	  });
   }
