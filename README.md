@@ -102,7 +102,7 @@ The body of the PUT request could also be ```{archived: false}``` to unarchive t
 
 # Demo
 
-Here it is a simple usage example on YouTube: [TODO]().
+Here it is a simple usage example on YouTube: [Demo](https://youtu.be/H1IzgpIqSqE).
 
 Open the web server in your browser, and use the “Register” link to register for a new account. The emails you’ll be sending and receiving in this project will be entirely stored in the database (they won’t actually be sent to real email servers), so you’re welcome to choose any email address ``(e.g. foo@example.com)`` and password you’d like.
 
