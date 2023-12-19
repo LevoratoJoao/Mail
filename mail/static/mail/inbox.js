@@ -41,22 +41,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		const email_div = document.createElement('div');
 		email_div.id = '#emails-object';
-
 		document.querySelector('#emails-view').append(email_div);
 
+		const div_list = document.createElement('div');
+		div_list.className = 'list-group';
+		email_div.appendChild(div_list);
+
 		emails.forEach(element => {
-			const p = document.createElement('p');
+			const button = document.createElement('a');
+			button.setAttribute('href', '#');
+			div_list.appendChild(button);
 			if (mailbox == 'sent') {
-				p.innerHTML = `<button class="list-group-item list-group-item-action list-group-item-secondary" id="inbox">Subject: ${element['subject']}<br>To: ${element['recipients']} - ${element['timestamp']}</button>`
+				button.className = 'list-group-item list-group-item-action flex-column align-items-start list-group-item-secondary';
+				button.innerHTML = `<div class="d-flex w-100 justify-content-between">
+										<h5 class="mb-1">${element['subject']}</h5>
+										<small>${element['timestamp']}</small>
+			  						</div>
+			  						<p class="mb-1">To: ${element['recipients']}</p>`;
 			} else {
 				if (element['read'] == true) {
-					p.innerHTML = `<button class="list-group-item list-group-item-action list-group-item-secondary" id="inbox">Subject: ${element['subject']}<br>Sender: ${element['sender']} - ${element['timestamp']}</button>`
+					button.className = 'list-group-item list-group-item-action flex-column align-items-start list-group-item-secondary';
+					button.innerHTML = `<div class="d-flex w-100 justify-content-between">
+											<h5 class="mb-1">${element['subject']}</h5>
+											<small>${element['timestamp']}</small>
+										  </div>
+										  <p class="mb-1">Sender: ${element['sender']}</p>`;
 				} else {
-					p.innerHTML = `<button class="list-group-item list-group-item-action" id="inbox">Subject: ${element['subject']}<br>Sender: ${element['sender']} - ${element['timestamp']}</button>`
+					button.className = 'list-group-item list-group-item-action flex-column align-items-start';
+					button.innerHTML = `<div class="d-flex w-100 justify-content-between">
+											<h5 class="mb-1" style="margin-right: 10px">${element['subject']}</h5>
+											<small>${element['timestamp']}</small>
+										  </div>
+										  <p class="mb-1">Sender: ${element['sender']}</p>`;
 				}
 			}
-			p.addEventListener('click', () => load_mail(element['id'], mailbox));
-			email_div.appendChild(p);
+			button.addEventListener('click', () => load_mail(element['id'], mailbox));
+			div_list.appendChild(button);
 		});
 	});
   }
@@ -97,10 +117,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	reply_button.addEventListener('click', () => {
 		compose_email();
-		document.querySelector('#compose-subject').value = email['subject'];
+		if (!email['subject'].startsWith('Re:')) {
+			document.querySelector('#compose-subject').value = 'Re: ' + email['subject'];
+		} else {
+			document.querySelector('#compose-subject').value = email['subject'];
+		}
 		document.querySelector('#compose-recipients').value = email['sender'];
-		document.querySelector('#compose-body').value = `On ${email['timestamp']} ${email['sender']} wrote: ${email['body']}`;
-	})
+		document.querySelector('#compose-body').value = `On ${email['timestamp']} ${email['sender']} wrote: ${email['body']}\n\n`;
+	});
 
 	email_div.appendChild(reply_button);
   }
@@ -128,36 +152,23 @@ document.addEventListener('DOMContentLoaded', function() {
 		  });
 
 		// ... do something else with email ...
-		document.querySelector('#emails-view').innerHTML = `<h3>${email.subject}</h3>`;
+		document.querySelector('#emails-view').innerHTML = `<div class="card">
+																<div class="card-body">
+																	<h3 class="card-title">${email.subject}</h3>
+																	<h6 class="card-subtitle mb-2 text-muted">Sender: ${email.sender} - On ${email.timestamp}</h6>
+																	<p class="card-text">Wrote: ${email.body}</p>
+																</div>
+															</div><br>`;
 
 		const email_div = document.createElement('div');
 		email_div.id = '#emails-object';
 
 		document.querySelector('#emails-view').append(email_div);
 
-		const p = document.createElement('p');
-		p.innerHTML = `Sender: ${email['sender']} - ${email['timestamp']}<br>Body: ${email['body']}`;
-		email_div.appendChild(p);
-
 		if (mailbox != 'sent') {
 			archive_mail(email, email_div);
 		}
 		reply_mail(email, email_div);
-
-		// document.querySelector('#reply-form').onsubmit = () => {
-		// 	fetch('/emails', {
-		// 		method: 'POST',
-		// 		body: JSON.stringify({
-		// 			subject: document.querySelector('#compose-recipients').value,
-		// 			body: document.querySelector('#compose-body').value
-		// 		})
-		// 	  })
-		// 	  .then(response => response.json())
-		// 	  .then(result => {
-		// 		  // Print result
-		// 		  console.log(result);
-		// 	  });
-		// };
 	});
   }
 
