@@ -52,28 +52,23 @@ document.addEventListener('DOMContentLoaded', function() {
 			button.setAttribute('href', '#');
 			div_list.appendChild(button);
 			if (mailbox == 'sent') {
-				button.className = 'list-group-item list-group-item-action flex-column align-items-start list-group-item-secondary';
+				button.className = 'list-group-item list-group-item-action flex-column align-items-start';
 				button.innerHTML = `<div class="d-flex w-100 justify-content-between">
-										<h5 class="mb-1">${element['subject']}</h5>
+										<h5 class="mb-1" style="margin-right: 10px">${element['subject']}</h5>
 										<small>${element['timestamp']}</small>
-			  						</div>
-			  						<p class="mb-1">To: ${element['recipients']}</p>`;
+										</div>
+										<p class="mb-1">To: ${element['recipients']}</p>`;
 			} else {
 				if (element['read'] == true) {
 					button.className = 'list-group-item list-group-item-action flex-column align-items-start list-group-item-secondary';
-					button.innerHTML = `<div class="d-flex w-100 justify-content-between">
-											<h5 class="mb-1">${element['subject']}</h5>
-											<small>${element['timestamp']}</small>
-										  </div>
-										  <p class="mb-1">Sender: ${element['sender']}</p>`;
 				} else {
 					button.className = 'list-group-item list-group-item-action flex-column align-items-start';
-					button.innerHTML = `<div class="d-flex w-100 justify-content-between">
-											<h5 class="mb-1" style="margin-right: 10px">${element['subject']}</h5>
-											<small>${element['timestamp']}</small>
-										  </div>
-										  <p class="mb-1">Sender: ${element['sender']}</p>`;
 				}
+				button.innerHTML = `<div class="d-flex w-100 justify-content-between">
+										<h5 class="mb-1" style="margin-right: 10px">${element['subject']}</h5>
+										<small>${element['timestamp']}</small>
+									</div>
+									<p class="mb-1">Sender: ${element['sender']}</p>`;
 			}
 			button.addEventListener('click', () => load_mail(element['id'], mailbox));
 			div_list.appendChild(button);
@@ -109,7 +104,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function reply_mail(email, email_div) {
-
 	const reply_button = document.createElement('button');
 	reply_button.innerHTML = 'Reply';
 	reply_button.setAttribute('type', 'button');
@@ -123,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			document.querySelector('#compose-subject').value = email['subject'];
 		}
 		document.querySelector('#compose-recipients').value = email['sender'];
-		document.querySelector('#compose-body').value = `On ${email['timestamp']} ${email['sender']} wrote: ${email['body']}\n\n`;
+		document.querySelector('#compose-body').value = `\n\nOn ${email['timestamp']} ${email['sender']} wrote: ${email['body']}`;
 	});
 
 	email_div.appendChild(reply_button);
@@ -156,13 +150,12 @@ document.addEventListener('DOMContentLoaded', function() {
 																<div class="card-body">
 																	<h3 class="card-title">${email.subject}</h3>
 																	<h6 class="card-subtitle mb-2 text-muted">Sender: ${email.sender} - On ${email.timestamp}</h6>
-																	<p class="card-text">Wrote: ${email.body}</p>
+																	<p style="white-space: pre-line" class="card-text">${email.body}</p>
 																</div>
 															</div><br>`;
 
 		const email_div = document.createElement('div');
 		email_div.id = '#emails-object';
-
 		document.querySelector('#emails-view').append(email_div);
 
 		if (mailbox != 'sent') {

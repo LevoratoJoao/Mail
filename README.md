@@ -2,7 +2,7 @@
 
 This is a front-end app for an email client that makes API calls to send and receive emails.
 
-# Installation 
+# Installation
 
 To use this project first you need python and django
 
@@ -78,14 +78,14 @@ Sending a GET request to /emails/email_id where email_id is an integer id for an
 }
 ```
 
-Note that if the email doesn’t exist, or if the user does not have access to the email, the route instead return a 404 Not Found error with a JSON response of 
+Note that if the email doesn’t exist, or if the user does not have access to the email, the route instead return a 404 Not Found error with a JSON response of
 
 ```json
 {"error": "Email not found."}
 ```
 
 ## POST /emails
-To send an email, you can send a POST request to the /emails route. The route requires three pieces of data to be submitted: a recipients value (a comma-separated string of all users to send an email to), a subject string, and a body string. 
+To send an email, you can send a POST request to the /emails route. The route requires three pieces of data to be submitted: a recipients value (a comma-separated string of all users to send an email to), a subject string, and a body string.
 If the email is sent successfully, the route will respond with a 201 status code and a JSON response of  ``` {"message": "Email sent successfully."} ```
 
 Note that there must be at least one email recipient: if one isn’t provided, the route will instead respond with a 400 status code and a JSON response of ```{"error": "At least one recipient required."}```
@@ -132,4 +132,10 @@ Allow users to archive and unarchive emails that they have received.
 * When viewing an Inbox email, the user will be presented with a button that lets them archive the email and if it's already archived the button will be unarchive.
 * After the email has been archived or unarchived the user's inbox is loaded.
 
+## Reply Email
 
+When viewing an email, the user is presented with a "Reply" button that lets them reply to the email.
+* When the user clicks the "Reply" button, they are taken to the email composition form.
+* The composition form is prefilled with the `recipient` field set to whoever sent the original email.
+* The subject line begins with "Re: " followed by the original subject line of the email.
+* The email body starts off with "On Jan 1 2020, 12:00 AM
